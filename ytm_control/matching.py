@@ -82,7 +82,8 @@ def similarity(a: str, b: str) -> float:
     """0..1 how alike two names are with spaces ignored ('SLVM Lord' = 'SLVMLORD') and, a little less, how they sound ('Slum Lord' is read as 'SLVMLORD' because
     a V stands in for the U in the stylised spelling). A sound-alike match is capped at 0.97 so an exact spelling always wins."""
     exact = _alike(compact(a), compact(b))
-    return max(exact, min(0.97, _alike(sounds_like(a), sounds_like(b))))
+    alike = _alike(sounds_like(a), sounds_like(b))
+    return max(exact, min(0.97, alike)) if alike >= 0.9 else exact  # only a near-identical sound counts: loose resemblances must not raise scores
 
 
 def rank(query: str, cands: list[dict]) -> list[tuple[float, dict]]:
