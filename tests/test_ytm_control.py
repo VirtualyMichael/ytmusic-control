@@ -252,3 +252,87 @@ def test_extension_and_server_agree_on_ports_and_the_extension_logic_passes():
     if node:
         r = subprocess.run([node, str(ROOT / "tests" / "extension_test.mjs")], capture_output=True, text=True, timeout=120)
         assert r.returncode == 0, r.stdout + r.stderr
+
+
+# ---------- sounds-like names and playlists -----------------------------------------------------------
+PLAYLISTS = {"fetchedAt": time.time() * 1000, "playlists": [
+    {"id": "PLearly", "title": "Early Morning", "tracks": [{"videoId": "1", "title": "Dance With Me", "artist": "A"}, {"videoId": "2", "title": "Bad Idea", "artist": "B"}]},
+    {"id": "PLdrive", "title": "amazing driving music", "tracks": [{"videoId": "3", "title": "Highway", "artist": "C"}]},
+    {"id": "PLmix", "title": "Changes mix", "tracks": []},
+    {"id": "PLmix2", "title": "Changes mix 2", "tracks": []},
+]}
+
+
+def test_names_that_cannot_be_read_aloud_are_matched_by_how_they_sound():
+    from ytm_control.matching import sounds_like
+
+    assert similarity("Slum Lord", "SLVMLORD") >= 0.95 and similarity("S L V M lord", "SLVMLORD") == 1.0 and similarity("Beyonc\u00e9", "Beyonce") == 1.0
+    assert sounds_like("Slum Lord") == sounds_like("SLVMLORD") and similarity("Stellardrone", "Lemaitre") < 0.5 and similarity("Continuum", "Continental") < 0.7
+    assert choose("Continuum by Slum Lord", SLVM)["i"] == 1  # the exact same song found from the spoken form, with no library
+    lib = Library()
+    lib.save({"fetchedAt": time.time() * 1000, "playlists": [{"id": "x", "title": "p", "tracks": [{"videoId": "v", "title": "Continuum", "artist": "SLVMLORD"}]}]})
+    assert lib.resolve("Continuum by Slum Lord") == "Continuum by SLVMLORD"
+
+
+def test_playlist_names_are_found_in_the_saved_library_or_refused():
+    lib = Library()
+    lib.save(PLAYLISTS)
+    assert lib.find_playlist("the early morning playlist")[0]["id"] == "PLearly" and lib.find_playlist("early mourning")[0]["id"] == "PLearly"
+    assert lib.find_playlist("driving music")[0]["id"] == "PLdrive"
+    pl, closest = lib.find_playlist("workout hits")
+    assert pl is None and "Early Morning" in closest
+    assert lib.find_playlist("changes mix 2")[0]["id"] == "PLmix2"  # the exact one, not its near twin
+
+
+def playlist_extension(ctl, title="Dance With Me", playing=True):
+    """A fake extension that also understands open_playlist."""
+    class Ext(FakeExtension):
+        opened = []
+
+        def run(self):
+            try:
+                with connect(f"ws://127.0.0.1:{self.port}", additional_headers={"Origin": self.origin}) as ws:
+                    ws.send(json.dumps({"type": "hello", "version": "1.0.0"}))
+                    for raw in ws:
+                        msg = json.loads(raw)
+                        if msg["action"] == "open_playlist":
+                            Ext.opened.append(msg["playlist"])
+                            out = {"ok": True, "result": "opened"}
+                        elif msg["action"] == "state":
+                            out = {"ok": True, "state": {"paused": not playing, "title": title, "by": "x"}}
+                        else:
+                            out = {"ok": True}
+                        ws.send(json.dumps({"id": msg["id"], **out}))
+            except Exception:
+                pass
+
+    e = Ext(ctl.bridge.port)
+    e.start()
+    assert wait(lambda: ctl.bridge.connected)
+    return Ext
+
+
+def test_play_playlist_opens_it_and_checks_a_song_from_it_is_playing(ctl):
+    ctl.library.save(PLAYLISTS)
+    Ext = playlist_extension(ctl)
+    assert ctl.play_playlist("early morning") == "Playing your playlist 'Early Morning', starting with Dance With Me by x." and Ext.opened == ["PLearly"]
+
+
+def test_play_playlist_does_not_claim_success_for_some_other_song(ctl):
+    ctl.library.save(PLAYLISTS)
+    Ext = playlist_extension(ctl, title="Something Else Entirely")
+    ctl.bridge.play_playlist  # noqa: B018
+    import ytm_control.bridge as b
+
+    start = time.time()
+    with pytest.raises(YtmError, match="did not start playing it"):
+        ctl.bridge.play_playlist("early morning", ctl.library, sleep=lambda s: time.sleep(0.01), clock=lambda c=iter(range(0, 10_000)): next(c) / 50)
+    assert time.time() - start < 20
+
+
+def test_play_playlist_unknown_name_plays_nothing(ctl):
+    ctl.library.save(PLAYLISTS)
+    Ext = playlist_extension(ctl)
+    with pytest.raises(YtmNoMatch, match="Early Morning"):
+        ctl.play_playlist("workout hits")
+    assert Ext.opened == []

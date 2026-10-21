@@ -16,12 +16,13 @@ Run these in a shell. They start the background helper automatically.
 | Play a song | `ytm-control play "Maps by Maroon 5"` (use `Song by Artist` when the artist is known) |
 | See what the page offers, without playing | `ytm-control search "Maps Maroon 5"` |
 | Play one of those results | `ytm-control click row 2` (the kind and number printed by `search`) |
+| Play one of the user's saved playlists | `ytm-control playlist "early morning"` (needs the library; run `library refresh` once if it says none is saved) |
 | Pause / resume / next / previous | `ytm-control pause`, `ytm-control resume`, `ytm-control next`, `ytm-control previous` |
 | What is playing | `ytm-control now` |
 | Is the song in the user's saved playlists, and how is it spelled there | `ytm-control library find "continuum by slvm lord"` |
 | Check the setup | `ytm-control status` |
 
-If the project provides MCP tools instead (`play_music`, `search_music`, `play_result`, `music_control`, `now_playing`, `library_find`), use those the same way.
+If the project provides MCP tools instead (`play_music`, `search_music`, `play_playlist`, `play_result`, `music_control`, `now_playing`, `library_find`), use those the same way.
 
 ## How to handle requests
 
@@ -34,4 +35,4 @@ If the project provides MCP tools instead (`play_music`, `search_music`, `play_r
 
 ## What it will not do
 
-It controls only YouTube Music in the user's browser. It cannot like, add to playlists, or change the account. Playing a whole saved playlist by name is not supported yet.
+It controls only YouTube Music in the user's browser. It cannot like, add to playlists, or change the account. Playlists it can play are only the user's saved ones. If it says no saved playlist has that name, read the closest names it lists and ask the user which they meant; do not substitute a song search.

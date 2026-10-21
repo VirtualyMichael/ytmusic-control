@@ -36,6 +36,17 @@ class Controller:
         except YtmPaused as e:
             return str(e)
 
+    def play_playlist(self, name: str) -> str:
+        """Play a saved playlist by name (needs the library: run a refresh once). Says so when no saved playlist is called that."""
+        if not self.bridge.connected and self.bridge.extension_id:
+            self.bridge.wait_connected()
+        if not self.bridge.connected:
+            raise YtmError("The browser extension is not connected. Install it from the extension folder and keep the browser open (see the README).")
+        try:
+            return self.bridge.play_playlist(name, self.library, open_tab=self.open_tab)
+        except YtmPaused as e:
+            return str(e)
+
     def search(self, query: str) -> list[dict]:
         """The visible results for a search, best guess first, each with the `kind` and `i` that `click` needs. An agent can read these and choose for itself."""
         self.bridge.ensure_tab(self.open_tab)

@@ -24,6 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("extension-path", help="print the folder to load as an unpacked extension")
     s = sub.add_parser("play", help="search and play the best match, e.g. 'Maps by Maroon 5'")
     s.add_argument("query", nargs="+")
+    s = sub.add_parser("playlist", help="play one of your saved playlists by name, e.g. 'early morning'")
+    s.add_argument("name", nargs="+")
     s = sub.add_parser("search", help="list the search results (with the numbers `click` needs) instead of playing")
     s.add_argument("query", nargs="+")
     s = sub.add_parser("click", help="press play on one search result: ytm-control click song 2")
@@ -62,6 +64,9 @@ def run(argv: list[str] | None = None) -> int:
             text = f"extension: {'connected' if res['extension_connected'] else 'NOT connected (load it in your browser, see the README)'}\nlibrary: {res['library']}"
         elif a.cmd == "play":
             res = call("play", query=" ".join(a.query))
+            text = res["message"]
+        elif a.cmd == "playlist":
+            res = call("play_playlist", name=" ".join(a.name))
             text = res["message"]
         elif a.cmd == "search":
             res = call("search", query=" ".join(a.query))

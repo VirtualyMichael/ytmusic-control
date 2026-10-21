@@ -6,6 +6,9 @@ Let a script, an AI agent or an MCP-capable app **play and control the YouTube M
 $ ytm-control play "Continuum by SLVM Lord"
 Playing Continuum by SLVMLORD (a song) in YouTube Music.
 
+$ ytm-control playlist "early morning"
+Playing your playlist 'Early Morning', starting with Dance With Me by Sam Smith.
+
 $ ytm-control play "Continuum by Metallica"
 Could not find 'Continuum by Metallica'. Nothing played. The closest results were: Continuum by Lemaitre; Continuum by SLVMLORD.
 ```
@@ -52,7 +55,7 @@ Add this to your MCP client's configuration:
 { "mcpServers": { "youtube-music": { "command": "python", "args": ["-m", "ytm_control", "mcp"] } } }
 ```
 
-Tools: `play_music`, `search_music`, `play_result`, `music_control`, `now_playing`, `library_find`, `library_refresh`. `search_music` followed by `play_result` lets the model read the whole result list and choose, instead of trusting one guess.
+Tools: `play_music`, `play_playlist`, `search_music`, `play_result`, `music_control`, `now_playing`, `library_find`, `library_refresh`. `search_music` followed by `play_result` lets the model read the whole result list and choose, instead of trusting one guess.
 
 ## What makes it dependable
 
@@ -60,6 +63,7 @@ Tools: `play_music`, `search_music`, `play_result`, `music_control`, `now_playin
 - **It never plays a different artist's song with the right title.** If nothing matches it says so and lists the closest results, so an agent can look at them and decide.
 - **Real songs beat lyric videos, karaoke and covers**, and "Eternity" beats "Eternity (Reprise)".
 - **It checks that the right song actually started** instead of reporting success after a click.
+- **Names that cannot be read aloud**: stylised spellings are matched by how they sound, so "Slum Lord" finds SLVMLORD (V stands in for U), "Kr3w" finds Krew, and spelling the first letters ("S L V M lord") works too. A sound-alike is never allowed to beat an exact spelling, and a different artist with the right title is still refused.
 - **Your library**: `ytm-control library refresh` reads all your playlists and the title and artist of every song in them (from your signed-in page, saved on your PC in `~/.ytm-control/ytm-library.json`). Spoken or typed names are then put into your own spelling before searching.
 
 ## Security and privacy
@@ -74,7 +78,7 @@ Tools: `play_music`, `search_music`, `play_result`, `music_control`, `now_playin
 - Unofficial. It drives YouTube Music's web page, which Google can change; if it stops finding results, the selectors in `extension/content.js` need updating. Using it is your decision under YouTube's terms of service.
 - Needs the browser open with a YouTube Music tab (it opens one for you if none is open).
 - A browser can block a page from starting audio when you have never interacted with that tab; the tool then says the song is loaded and you need to press play.
-- Playing a whole saved playlist by name is not supported yet.
+- Playlists: only your *saved* playlists can be played by name (run `ytm-control library refresh` once). A name that is not in your library is refused, with the closest names listed, rather than guessed.
 - Tested with fake browsers and a fake page, plus live checks in Chrome on Windows. Not yet tested on macOS or Linux.
 
 ## Development

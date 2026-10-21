@@ -17,6 +17,7 @@ API_PORTS = (47830, 47831, 47832)
 ACTIONS = {
     "status": lambda c, a: c.status(),
     "play": lambda c, a: {"message": c.play(str(a.get("query", "")))},
+    "play_playlist": lambda c, a: {"message": c.play_playlist(str(a.get("name", "")))},
     "search": lambda c, a: {"results": c.search(str(a.get("query", "")))},
     "click": lambda c, a: c.click(str(a.get("kind", "")), int(a.get("i", -1))),
     "state": lambda c, a: {"state": c.state()},

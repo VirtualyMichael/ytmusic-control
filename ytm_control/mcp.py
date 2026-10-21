@@ -13,6 +13,8 @@ from .client import DaemonError, call
 TOOLS = [
     {"name": "play_music", "description": "Search YouTube Music and play the best match, e.g. 'Maps by Maroon 5'. Never plays a different artist's song with the same title: says it could not find it instead (then use search_music and look at the results).",
      "inputSchema": {"type": "object", "properties": {"query": {"type": "string", "description": "Song, or 'Song by Artist'"}}, "required": ["query"]}},
+    {"name": "play_playlist", "description": "Play one of the user's saved YouTube Music playlists by name (needs the library; says so when no saved playlist is called that and lists the closest names).",
+     "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}},
     {"name": "search_music", "description": "List YouTube Music search results (kind, number, title, artist), best guess first, without playing. Pick one and call play_result.",
      "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
     {"name": "play_result", "description": "Press play on a result from the latest search_music (use its kind and number).",
@@ -29,6 +31,8 @@ TOOLS = [
 def run_tool(name: str, a: dict) -> str:
     if name == "play_music":
         return call("play", query=str(a["query"]))["message"]
+    if name == "play_playlist":
+        return call("play_playlist", name=str(a["name"]))["message"]
     if name == "search_music":
         rows = call("search", query=str(a["query"]))["results"]
         return "\n".join(f"kind={r['kind']} number={r['i']}: {r['description']}  ({r['sub']})" for r in rows) or "No results."
