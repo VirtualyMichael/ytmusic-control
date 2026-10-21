@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Music Control bridge",
+  "version": "1.0.0",
+  "description": "Lets a program on this PC (a CLI, an AI agent skill or an MCP server) search and play songs in your signed-in YouTube Music. Talks only to 127.0.0.1 and only touches music.youtube.com.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsv5hh/wjCzHzHjewNd7b8IlvLngLPUx+O/N+e8dfbMmHEhcrV+uPNCNtthY4QNhKGvO5W5BOlgUbGMHGYxFz0CTu8TSjRWcjthbU7TitTkVJlq5YZKINMJskjVT/Zr0XQG40GU8o6rql/QCJZdomC8iFy5l9eq2s4IK2SHrJSfe0KKPrPQGyn54LAopF4XSg/ahvDGsZqvXeh6wlMy14d5tBbWH7xx2fcsLDqOSqh20cJ66Q5XbZwOHLkTjK7MkdVRmg5DF+7DyybZDC1PotOOkfXp2p5TIUriRHD+qpKjq9FbTa5TDLezfj8yVMARVOXiqvisRxm+Bpwx+tdNhrwwIDAQAB",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://music.youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

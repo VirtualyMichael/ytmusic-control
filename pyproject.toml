@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ytmusic-control"
+version = "0.1.0"
+description = "Control the YouTube Music you are signed in to from a CLI, an AI agent skill or an MCP server, through a small browser extension."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["websockets>=12"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+ytm-control = "ytm_control.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ytm_control*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
