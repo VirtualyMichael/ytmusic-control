@@ -33,6 +33,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("i", type=int)
     for name in ("pause", "resume", "next", "previous", "toggle"):
         sub.add_parser(name, help=f"{name} the music")
+    for name, text in (("like", "thumbs-up the playing song"), ("unlike", "take your like off the playing song"), ("shuffle", "toggle shuffle"), ("radio", "play more like the playing song")):
+        sub.add_parser(name, help=text)
     sub.add_parser("now", help="what is playing")
     lib = sub.add_parser("library", help="your saved playlists and songs")
     ls = lib.add_subparsers(dest="lib", required=True)
@@ -77,6 +79,9 @@ def run(argv: list[str] | None = None) -> int:
         elif a.cmd in ("pause", "resume", "next", "previous", "toggle"):
             res = call("control", what="play" if a.cmd == "resume" else a.cmd)
             text = f"{res['result']}. {_state_line(res['state'])}"
+        elif a.cmd in ("like", "unlike", "shuffle", "radio"):
+            res = call("music_action", action=a.cmd)
+            text = res["message"]
         elif a.cmd == "now":
             res = call("state")
             text = _state_line(res["state"])

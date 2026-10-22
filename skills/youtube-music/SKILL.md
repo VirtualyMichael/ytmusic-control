@@ -17,12 +17,13 @@ Run these in a shell. They start the background helper automatically.
 | See what the page offers, without playing | `ytm-control search "Maps Maroon 5"` |
 | Play one of those results | `ytm-control click row 2` (the kind and number printed by `search`) |
 | Play one of the user's saved playlists | `ytm-control playlist "early morning"` (needs the library; run `library refresh` once if it says none is saved) |
+| Like / unlike the playing song, play more like it, shuffle | `ytm-control like`, `ytm-control unlike`, `ytm-control radio`, `ytm-control shuffle` |
 | Pause / resume / next / previous | `ytm-control pause`, `ytm-control resume`, `ytm-control next`, `ytm-control previous` |
 | What is playing | `ytm-control now` |
 | Is the song in the user's saved playlists, and how is it spelled there | `ytm-control library find "continuum by slvm lord"` |
 | Check the setup | `ytm-control status` |
 
-If the project provides MCP tools instead (`play_music`, `search_music`, `play_playlist`, `play_result`, `music_control`, `now_playing`, `library_find`), use those the same way.
+If the project provides MCP tools instead (`play_music`, `search_music`, `play_playlist`, `music_action`, `play_result`, `music_control`, `now_playing`, `library_find`), use those the same way.
 
 ## How to handle requests
 

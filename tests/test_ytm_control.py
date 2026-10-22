@@ -336,3 +336,28 @@ def test_play_playlist_unknown_name_plays_nothing(ctl):
     with pytest.raises(YtmNoMatch, match="Early Morning"):
         ctl.play_playlist("workout hits")
     assert Ext.opened == []
+
+
+def test_music_actions_report_what_the_page_showed(ctl):
+    class Ext(FakeExtension):
+        def run(self):
+            try:
+                with connect(f"ws://127.0.0.1:{self.port}", additional_headers={"Origin": self.origin}) as ws:
+                    ws.send(json.dumps({"type": "hello", "version": "1.1.0"}))
+                    for raw in ws:
+                        msg = json.loads(raw)
+                        if msg["action"] == "state":
+                            out = {"ok": True, "state": {"paused": False, "title": "Eternity", "by": "Stellardrone", "list": "PLx"}}
+                        elif msg["action"] == "control":
+                            out = {"ok": True, "result": {"like": "liked", "shuffle": "unconfirmed"}.get(msg["what"], "clicked"), "state": {}}
+                        else:
+                            out = {"ok": True}
+                        ws.send(json.dumps({"id": msg["id"], **out}))
+            except Exception:
+                pass
+
+    Ext(ctl.bridge.port).start()
+    assert wait(lambda: ctl.bridge.connected)
+    assert ctl.music_action("like").startswith("Liked Eternity by Stellardrone") and ctl.music_action("now") == "Playing: Eternity by Stellardrone."
+    with pytest.raises(YtmError, match="did not confirm"):
+        ctl.music_action("shuffle")

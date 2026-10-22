@@ -55,7 +55,7 @@ Add this to your MCP client's configuration:
 { "mcpServers": { "youtube-music": { "command": "python", "args": ["-m", "ytm_control", "mcp"] } } }
 ```
 
-Tools: `play_music`, `play_playlist`, `search_music`, `play_result`, `music_control`, `now_playing`, `library_find`, `library_refresh`. `search_music` followed by `play_result` lets the model read the whole result list and choose, instead of trusting one guess.
+Tools: `play_music`, `play_playlist`, `music_action` (like, unlike, shuffle, radio), `search_music`, `play_result`, `music_control`, `now_playing`, `library_find`, `library_refresh`. `search_music` followed by `play_result` lets the model read the whole result list and choose, instead of trusting one guess.
 
 ## What makes it dependable
 

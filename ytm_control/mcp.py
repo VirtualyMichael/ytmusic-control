@@ -21,6 +21,8 @@ TOOLS = [
      "inputSchema": {"type": "object", "properties": {"kind": {"type": "string"}, "number": {"type": "integer"}}, "required": ["kind", "number"]}},
     {"name": "music_control", "description": "pause, play (resume), toggle, next or previous.",
      "inputSchema": {"type": "object", "properties": {"action": {"type": "string", "enum": ["play", "pause", "toggle", "next", "previous"]}}, "required": ["action"]}},
+    {"name": "music_action", "description": "Do something with the playing song: like, unlike, shuffle, or radio (play more like it). Reports what the page showed afterwards.",
+     "inputSchema": {"type": "object", "properties": {"action": {"type": "string", "enum": ["like", "unlike", "shuffle", "radio"]}}, "required": ["action"]}},
     {"name": "now_playing", "description": "What is playing in YouTube Music right now, and whether it is paused.", "inputSchema": {"type": "object", "properties": {}}},
     {"name": "library_find", "description": "Check whether a song is in the user's saved YouTube Music playlists and how it is spelled there.",
      "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
@@ -44,6 +46,8 @@ def run_tool(name: str, a: dict) -> str:
         res = call("control", what=str(a["action"]))
         s = res.get("state") or {}
         return f"{res['result']}. " + (f"{'Paused' if s.get('paused') else 'Playing'}: {s.get('title')}" if s.get("title") else "Nothing is playing.")
+    if name == "music_action":
+        return call("music_action", action=str(a["action"]))["message"]
     if name == "now_playing":
         s = call("state")["state"]
         return f"{'Paused' if s.get('paused') else 'Playing'}: {s.get('title')}" + (f" by {s['by']}" if s.get("by") else "") if s.get("title") else "Nothing is playing."

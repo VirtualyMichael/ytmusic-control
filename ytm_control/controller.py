@@ -4,7 +4,7 @@ from __future__ import annotations
 import webbrowser
 
 from . import config
-from .bridge import YtmBridge, YtmPaused
+from .bridge import YtmBridge, YtmPaused, make_music_actions
 from .library import Library
 from .matching import YtmError, YtmNoMatch, describe, rank
 
@@ -67,6 +67,10 @@ class Controller:
             raise YtmError(f"Unknown control '{what}'. Use one of: {', '.join(CONTROLS)}.")
         res = self.bridge.request("control", what=what)
         return {"result": res.get("result"), "state": res.get("state", {})}
+
+    def music_action(self, action: str) -> str:
+        """like / unlike / shuffle / radio ('play more like this') / now, for the song that is playing. Reports what the page showed afterwards."""
+        return make_music_actions(self.bridge)(action)
 
     def library_refresh(self) -> str:
         return self.library.refresh(self.bridge)
