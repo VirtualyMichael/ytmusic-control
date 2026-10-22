@@ -2,7 +2,7 @@
 
 A small Chrome / Edge extension that lets the **ytmusic-control helper on your own PC** (its CLI, an AI agent skill or an MCP server) search and play songs in **your signed-in YouTube Music**, in the tab or app window you already have open.
 
-It is three short files you can read in a few minutes: `manifest.json`, `background.js`, `content.js`.
+It is four short files you can read in a few minutes: `manifest.json`, `background.js`, `content.js` and `unload-guard.js`.
 
 ## What it does
 
@@ -18,6 +18,8 @@ The helper ranks the results and decides what to click; the extension only repor
 - **Sites:** only `https://music.youtube.com/*` (`host_permissions`). It cannot read any other site.
 - **Browser permissions:** `tabs` (to find your YouTube Music tab and tell whether it is playing), `scripting` (to inject its page script into a YouTube Music tab that was already open when you installed it), `alarms` (to reconnect to the app if the browser put the extension to sleep).
 - **Data it sends to the helper:** search result titles and subtitles, the currently playing title and artist, paused/playing, and (on refresh) your playlist names with each track's title, artist and video id. Nothing else: no cookies, no account details, no watch history. The helper keeps that list in `~/.ytm-control` on your PC.
+
+- **`unload-guard.js`** runs inside the YouTube Music page itself, before the page's own scripts, and does one thing: it keeps the page's own "Leave site?" prompt exactly as it is, except for the moment the extension itself opens a playlist or a radio in your tab (otherwise that prompt freezes the tab). It only touches `beforeunload` handlers on that page's window.
 
 ## Who can talk to it
 
