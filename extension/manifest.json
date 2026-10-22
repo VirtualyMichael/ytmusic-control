@@ -21,6 +21,16 @@
         "https://music.youtube.com/*"
       ],
       "js": [
+        "unload-guard.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
         "content.js"
       ],
       "run_at": "document_idle"
